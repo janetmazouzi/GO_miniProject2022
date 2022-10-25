@@ -85,7 +85,7 @@ type session struct {
 
 func main() {
 	var err error
-	db, err = sql.Open("mysql", "admin:12345678@tcp(127.0.0.1:3306)/tarea_1_sd?parseTime=true")
+	db, err = sql.Open("mysql", "root:dfghdfgh@tcp(127.0.0.1:3306)/tarea_1_sd?parseTime=true")
 	if err != nil {
 		log.Fatal(err)
 	}

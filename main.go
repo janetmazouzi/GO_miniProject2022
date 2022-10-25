@@ -50,6 +50,12 @@ type Compras struct {
 	Productos  []Compra
 }
 
+type Despacho struct {
+	Id_despacho int64
+	Estado      string
+	Id_compra   int64
+}
+
 func main() {
 
 	fmt.Println("Bienvenido")
@@ -68,9 +74,11 @@ func main() {
 		case 1:
 			var user Usuario
 			fmt.Print("Ingrese su id: ")
-			fmt.Scanln(&user.ID)
+			//fmt.Scanln(&user.ID)
+			user.ID = 890
 			fmt.Print("Ingrese su contraseña: ")
-			fmt.Scanln(&user.Password)
+			//fmt.Scanln(&user.Password)
+			user.Password = "password"
 			b, err := json.Marshal(user)
 			if err != nil {
 				fmt.Println("error:", err)
@@ -94,11 +102,12 @@ func main() {
 
 				var opcionCliente int
 				opcionCliente = -1
-				for opcionCliente != 3 {
+				for opcionCliente != 4 {
 					fmt.Println("\nOpciones:")
 					fmt.Println("1. Ver lista de productos")
 					fmt.Println("2. Hacer compra")
-					fmt.Println("3. Salir")
+					fmt.Println("3. Consultar despacho")
+					fmt.Println("4. Salir")
 					fmt.Print("Ingrese una opción: ")
 					fmt.Scanln(&opcionCliente)
 					switch opcionCliente {
@@ -109,6 +118,9 @@ func main() {
 						buyProducts(int(user.ID))
 
 					case 3:
+						consultaDespacho()
+
+					case 4:
 						fmt.Println("Saliendo..")
 						break
 					default:
@@ -243,6 +255,37 @@ func buyProducts(id int) {
 
 	fmt.Println("Gracias por su compra!")
 	printDatosCompra(result)
+}
+
+func consultaDespacho() {
+	var idDespacho int64
+	fmt.Print("Ingrese el ID del despacho: ")
+	fmt.Scanln(&idDespacho)
+
+	url := "http://localhost:5000/api/clientes/estado_despacho" + strconv.Itoa(int(idDespacho))
+	request, error := http.NewRequest("GET", url, nil)
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	client := &http.Client{}
+	response, error := client.Do(request)
+	if error != nil {
+		panic(error)
+	}
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body)
+	var despacho Despacho
+	json.Unmarshal([]byte(body), &despacho)
+
+	fmt.Println(despacho.Id_compra)
+	fmt.Println("El estado del despacho es : " + despacho.Estado)
+
+	/*if len(despacho) == 0 {
+		fmt.Println("Este despacho no se encuentra en la base de datos")
+	} else {
+		fmt.Println("Producto eliminado exitosamente")
+	}*/
+
 }
 
 func delProduct() {
